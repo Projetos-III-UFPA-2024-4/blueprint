@@ -31,7 +31,7 @@ const AudioRecorder = () => {
                         granted[PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE] !== PermissionsAndroid.RESULTS.GRANTED ||
                         granted[PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE] !== PermissionsAndroid.RESULTS.GRANTED
                     ) {
-                        Alert.alert('Permissões negadas', 'Você precisa conceder acesso ao microfone e armazenamento.');
+                        console.log('Permissões negadas', 'Você precisa conceder acesso ao microfone e armazenamento.');
                     }
                 } catch (err) {
                     console.warn(err);
@@ -47,14 +47,24 @@ const AudioRecorder = () => {
         if (!selectedDirectory) return;
         try {
             const files = await RNFS.readDir(selectedDirectory);
+    
+            // Filtra apenas arquivos MP3 e ordena pela data de modificação (mtime)
             const audioFiles = files
                 .filter(file => file.name.endsWith('.mp3'))
+                .sort((a, b) => {
+                    const dateA = a.mtime ? new Date(a.mtime).getTime() : 0;
+                    const dateB = b.mtime ? new Date(b.mtime).getTime() : 0;
+                    return dateB - dateA;
+                })
                 .map(file => file.path);
+    
             setAudioFiles(audioFiles);
         } catch (error) {
             console.error('Erro ao listar arquivos:', error);
         }
     };
+    
+    
 
     const generateAudioFileName = (): string => {
         const timestamp = new Date().getTime();
@@ -122,7 +132,7 @@ const AudioRecorder = () => {
                     {recording ? 'Parar' : 'Gravar'}
                 </Text>
             </TouchableOpacity>
-            <View>
+            <View style={styles.audioContainer}>
                 <Text style={styles.subTitle}>Áudios Gravados:</Text>
                 {audioFiles.length === 0 ? (
                     <Text style={styles.noAudioText}>Nenhum áudio gravado.</Text>
@@ -136,6 +146,7 @@ const AudioRecorder = () => {
                             </TouchableOpacity>
                         )}
                         nestedScrollEnabled={true}
+                        style={{ maxHeight: '90%' }} // Define altura máxima para evitar ocupar toda a tela
                     />
                 )}
             </View>
@@ -150,16 +161,16 @@ const AudioRecorder = () => {
                                 path = path.replace('content://com.android.externalstorage.documents/tree/primary%3A', '/storage/emulated/0/');
                             }
                             setSelectedDirectory(path);
-                            Alert.alert('Pasta Selecionada', `Os arquivos serão salvos em:\n${path}`);
                             listAudioFiles();
                         }
                     }}
                 >
                     <Text style={styles.buttonText}>Escolher Pasta</Text>
                 </TouchableOpacity>
-                <Text style={styles.directoryText}>
+                <Text style={[styles.directoryText, !selectedDirectory && { color: 'red' }]}>
                     {selectedDirectory ? `${selectedDirectory}` : 'Nenhuma pasta selecionada'}
                 </Text>
+
             </View>
         </View>
     );
