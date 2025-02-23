@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import './menu.css';
-import { useState } from 'react'; 
-import logo from '../../../src/assets/logo.svg'
+import { useState } from 'react';
+import logo from '../../assets/logo.svg'
+
 
 const handleLogoClick = () => {
     window.location.href = "/";
