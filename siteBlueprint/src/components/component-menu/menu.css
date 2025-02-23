@@ -1,0 +1,153 @@
+.menu-component {
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.menu-component .logo {
+    display: flex;
+    align-items: center;
+    margin-left: 2rem;
+    transition: 0.5s;
+}
+
+.menu-component .logo:hover {
+    transform: scale(1.15);
+}
+
+.menu-component .logo img {
+    height: 50px;
+    width: 50px;
+}
+
+.menu-component .logo h1 {
+    color: #00178F;
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 2.5rem;
+    margin-left: 1rem;
+}
+
+/* Menu desktop */
+.menu-component .menu-conteudo {
+    display: flex;
+    width: 40%;
+}
+
+.menu-component .menu-conteudo nav {
+    display: flex;
+    align-items: center;
+    width: 100% !important;
+}
+
+.menu-component .menu-conteudo a {
+    font-size: 2rem;
+    padding: 1.4rem;
+    border-radius: 5px;
+    font-weight: 600;
+    color: #ffffff !important;
+}
+
+.menu-component .menu-conteudo a:hover {
+    background-color: #ffffff2f !important;
+}
+
+.menu-component .menu-conteudo .contato a {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+.menu-component .menu-conteudo nav {
+    width: 50%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+/* Estilos para o menu mobile */
+.mobile-menu-icon {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.mobile-menu-icon .bar {
+    width: 25px;
+    height: 3px;
+    background-color: white;
+    margin: 4px 0;
+    transition: 0.3s;
+}
+
+/* Quando o menu está aberto */
+.menu-conteudo.open {
+    z-index: 10000000;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background-color: rgb(25, 25, 100);
+    text-align: center;
+}
+
+.menu-conteudo.open nav {
+    display: block;
+}
+
+.menu-conteudo.open a {
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Estilos para telas pequenas (mobile) */
+@media (max-width: 920px) {
+    
+    .menu-component .menu-conteudo {
+        display: none;
+    }
+    
+    .menu-component .logo h1 {
+        display: none;
+    }
+
+    .mobile-menu-icon {
+        display: flex;
+    }
+
+    .mobile-menu-icon i {
+        color: #00178F;
+        font-size: 2.5rem;
+    }
+
+    .menu-conteudo.open {
+        width: 50%;
+        display: flex;
+        padding: 2rem 0;
+        margin-left: 50%;
+    }
+
+    .menu-conteudo.open nav {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .menu-conteudo.open a {
+        width: fit-content;
+        padding: .5rem 1rem;
+        margin: .8rem 0;
+        border-bottom: none;
+    }
+
+    .menu-conteudo.open .contato {
+        margin-top: 2rem;
+    }
+
+    .menu-conteudo.open .contato a {
+        margin-top: 2rem;
+        padding: 1rem;
+    }
+}

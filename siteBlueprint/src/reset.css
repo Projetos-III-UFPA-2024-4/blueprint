@@ -1,0 +1,53 @@
+/* Reset CSS */
+/*------------------------------------*/
+
+/* Box sizing border-box reset */
+html {
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+/* Margin and padding reset */
+body, h1, h2, h3, h4, h5, h6, p, blockquote, figure, dl, dd, ul, ol, li, pre, fieldset, legend, textarea, input[type="search"], input[type="button"], input[type="submit"], input[type="reset"], button {
+    margin: 0;
+    padding: 0;
+}
+
+/* Typography reset */
+body {
+    font-family: Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+/* List reset */
+ul, ol {
+    list-style: none;
+}
+
+/* Form elements reset */
+button, input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+/* Remove default link styling */
+a {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* Clear floats */
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
