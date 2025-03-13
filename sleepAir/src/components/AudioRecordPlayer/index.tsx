@@ -1,3 +1,4 @@
+// src/components/AudioRecorder/index.tsx
 import React, { useState, useEffect } from 'react';
 import {
   View,

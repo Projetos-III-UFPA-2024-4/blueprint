@@ -1,36 +1,43 @@
 // src/components/screens/menu-screen/index.tsx
-
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import styles from './style'; // Importando os estilos
+import styles from './style'; 
 
 const MenuScreen = ({ navigation }: any) => {
-  return (
-    <View style={styles.container}> {/* Aplicando o estilo ao container */}
-      <Text style={styles.title}>Menu Principal</Text> {/* Texto dentro de <Text> */}
-      
-      <TouchableOpacity
-        style={styles.button} // Estilizando o botão
-        onPress={() => navigation.navigate('AudioRecorder')}
-      >
-        <Text style={styles.buttonText}>Audio Recorder</Text> {/* Texto dentro de <Text> */}
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={styles.button} // Estilizando o botão
-        onPress={() => navigation.navigate('Screen1')}
-      >
-        <Text style={styles.buttonText}>Relatório</Text> {/* Texto dentro de <Text> */}
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={styles.button} // Estilizando o botão
-        onPress={() => navigation.navigate('Screen2')}
-      >
-        <Text style={styles.buttonText}>Histórico</Text> {/* Texto dentro de <Text> */}
-      </TouchableOpacity>
-    </View>
-  );
+    return (
+        <>
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.header_text}>Bem-vindo(a)</Text>
+                </View>
+                <View style={styles.message}>
+                    <Text style={styles.message_text}>Tenha uma <Text style={styles.message_text_span}>boa</Text> noite de sono</Text>
+                </View>
+                <View style={styles.container_content}>
+                    <TouchableOpacity
+                        style={styles.button} 
+                        onPress={() => navigation.navigate('Gravador')}
+                    >
+                        <Text style={styles.buttonText}>Gravação de sono</Text> 
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.button} 
+                        onPress={() => navigation.navigate('Relatório')}
+                    >
+                        <Text style={styles.buttonText}>Relatório da Análise</Text> 
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => navigation.navigate('Histórico')}
+                    >
+                        <Text style={styles.buttonText}>Histórico</Text> 
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </>
+    );
 };
 
 export default MenuScreen;
