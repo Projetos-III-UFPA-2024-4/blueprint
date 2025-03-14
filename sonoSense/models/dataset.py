@@ -1,7 +1,8 @@
+# /models/dataset.py
 import os
 import sys
-import numpy as np
-import kagglehub
+import numpy as np # type: ignore
+import kagglehub # type: ignore
 from models.features import extract_features
 
 

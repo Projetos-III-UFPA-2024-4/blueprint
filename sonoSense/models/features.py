@@ -1,5 +1,6 @@
-import numpy as np
-import librosa
+# /models/features.py
+import numpy as np # type: ignore
+import librosa # type: ignore
 
 def extract_features(file_path, n_mfcc=40, fixed_frames=44):
     """
