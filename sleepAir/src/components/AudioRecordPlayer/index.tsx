@@ -218,7 +218,7 @@ const AudioRecorder = () => {
     // Função para enviar MFCCs ao servidor
     const sendMFCCsToServer = async (mfccs: number[]) => {
         try {
-            const response = await axios.post('http://localhost:5000/avaliar_sono', {
+            const response = await axios.post('http://192.168.1.7:8013/avaliar_sono', {
                 mfccs: mfccs,
             });
             Alert.alert('Sucesso', response.data.message);
