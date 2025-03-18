@@ -16,6 +16,7 @@ class Controller:
         self.model = self.carregar_modelo()  # Carrega o modelo salvo, se existir
         self.input_shape = None
 
+
     def carregar_modelo(self):
         """
         Carrega o modelo treinado a partir de um arquivo .h5. Se o modelo não existir, retorna None.
@@ -31,6 +32,7 @@ class Controller:
             print(f"Erro ao carregar o modelo: {e}")
             return None
 
+
     def preparar_dados(self):
         """
         Baixa o dataset e carrega os dados, extraindo as features dos áudios e separando os dados em conjuntos
@@ -45,6 +47,7 @@ class Controller:
         y_train_cat = to_categorical(y_train)
         y_test_cat = to_categorical(y_test)
         return X_train, X_test, y_train_cat, y_test_cat
+
 
     def treinar_modelo(self, X_train, X_test, y_train_cat, y_test_cat, epochs=30, batch_size=32):
         """
@@ -68,10 +71,10 @@ class Controller:
     def avaliar_noite(self, audio_path, segment_duration=1.0, threshold=20):
         """
         Processa uma gravação noturna completa e classifica cada segmento.
+        Retorna um dicionário com os resultados da avaliação.
         """
         if self.model is None:
-            print("Modelo não treinado. Treine o modelo antes de avaliar uma gravação noturna.")
-            return
+            return {"error": "Modelo não treinado. Treine o modelo antes de avaliar uma gravação."}
         
         # Carrega a gravação completa e obtém a taxa de amostragem
         audio, sample_rate = librosa.load(audio_path, sr=None)
@@ -107,10 +110,17 @@ class Controller:
         predictions = self.model.predict(segments)
         pred_labels = np.argmax(predictions, axis=1)
         
+        # Calcula a porcentagem de segmentos com ronco
         percent_ronco = np.sum(pred_labels) / len(pred_labels) * 100
-        print("Porcentagem de segmentos com ronco: {:.2f}%".format(percent_ronco))
         
+        # Retorna a resposta como um dicionário
         if percent_ronco > threshold:
-            print("Sono possivelmente não saudável.")
+            return {
+                "message": "Sono possivelmente não saudável.",
+                "percent_ronco": percent_ronco
+            }
         else:
-            print("Sono possivelmente saudável.")
+            return {
+                "message": "Sono possivelmente saudável.",
+                "percent_ronco": percent_ronco
+            }

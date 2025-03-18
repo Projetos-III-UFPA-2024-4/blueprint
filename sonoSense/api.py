@@ -1,11 +1,11 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # type: ignore # Adicione a importação do CORS
+from flask_cors import CORS # type: ignore
 from controllers.controller import Controller
 import os
 
 app = Flask(__name__)
 
-# Adicione o CORS à aplicação Flask
+# Adicionando CORS à aplicação Flask
 CORS(app)
 
 controller = Controller()
@@ -23,15 +23,14 @@ def avaliar_sono():
         if controller.model is None:
             return jsonify({"error": "Modelo não carregado. Necessário treinar o modelo primeiro."}), 400
         
-        controller.avaliar_noite(file_path)
+        # Chamando a função de avaliação e armazenando o resultado
+        resultado = controller.avaliar_noite(file_path)
         
-        os.remove(file_path)
 
-        return jsonify({"message": "Avaliação concluída com sucesso!"}), 200
+        return jsonify(resultado), 200  # Retorna o resultado como JSON
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 @app.route('/teste', methods=['GET'])
 def home():
