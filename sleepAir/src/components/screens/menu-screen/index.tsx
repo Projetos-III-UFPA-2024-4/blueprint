@@ -2,6 +2,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import styles from './style'; 
+import { AudioRecorder } from '../../AudioRecordPlayer/index'; // Importando o AudioRecorder
 
 const MenuScreen = ({ navigation }: any) => {
     return (

@@ -1,3 +1,4 @@
+// src/components/AudioRecorder/index.tsx
 import React, { useState, useEffect } from 'react';
 import {
     View,
@@ -18,20 +19,9 @@ import Share from 'react-native-share';
 import { styles, modalStyles } from './style';
 import axios from 'axios'; // Adiciona axios para envio ao servidor
 
-// Função para extrair MFCCs (simulada para o exemplo)
-const extractMFCCs = (audioFilePath: string): Promise<number[]> => {
-    return new Promise((resolve, reject) => {
-        // Simula a extração de MFCCs, retornando um array de números aleatórios
-        setTimeout(() => {
-            const simulatedMFCCs = Array.from({ length: 40 }, (_, i) => Math.random()); // 40 coeficientes simulados
-            resolve(simulatedMFCCs);
-        }, 1000); // Simula um delay de processamento
-    });
-};
-
 const audioRecorderPlayer = new AudioRecorderPlayer();
 
-const AudioRecorder = () => {
+const AudioRecorder = ({ navigation }: any)  => {
     const [selectedDirectory, setSelectedDirectory] = useState<string | null>(null);
     const [recording, setRecording] = useState<boolean>(false);
     const [audioPath, setAudioPath] = useState<string>('');
@@ -215,29 +205,33 @@ const AudioRecorder = () => {
         }
     };
 
-    // Função para enviar MFCCs ao servidor
-    const sendMFCCsToServer = async (mfccs: number[]) => {
+    // Envia o arquivo de áudio para o servidor
+    const sendAudioToServer = async (audioFilePath: string) => {
+        const formData = new FormData();
+        formData.append('audio', {
+            uri: audioFilePath,
+            type: 'audio/mp3',
+            name: 'audio.mp3',
+        });
         try {
-            const response = await axios.post('http://192.168.1.7:8013/avaliar_sono', {
-                mfccs: mfccs,
+            const response = await axios.post('http://89.116.74.250:8013/avaliar_sono', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
-            Alert.alert('Sucesso', response.data.message);
+            console.log('Resposta do servidor:', response);
         } catch (error) {
-            console.error('Erro ao enviar dados ao servidor:', error);
-            Alert.alert('Erro', 'Não foi possível enviar os dados ao servidor.');
         }
     };
 
-    // Função para extrair MFCCs e avaliar o sono
     const handleEvaluateSleep = async () => {
         if (!selectedAudio) {
             Alert.alert('Erro', 'Nenhum áudio selecionado para avaliação.');
             return;
         }
         try {
-            // Simulando a extração de MFCCs
-            const mfccs = await extractMFCCs(selectedAudio);
-            await sendMFCCsToServer(mfccs);
+            await sendAudioToServer(selectedAudio);
+            // navigation.navigate('Relatório');
         } catch (error) {
             console.error('Erro ao avaliar o sono:', error);
             Alert.alert('Erro', 'Não foi possível avaliar o sono.');
