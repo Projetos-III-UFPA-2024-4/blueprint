@@ -5,33 +5,26 @@ from flask_cors import CORS  # type: ignore
 from controllers.controller import Controller
 from models.audio_model import AudioModel
 
-# Configuração do Flask
 app = Flask(__name__)
 
-# Adicionando CORS à aplicação Flask
 CORS(app)
 
-# Configuração de log para o Flask
-logging.basicConfig(level=logging.DEBUG)  # Configuração de log para capturar DEBUG e INFO
-app.logger.setLevel(logging.DEBUG)  # Definir nível de log do app para DEBUG
+logging.basicConfig(level=logging.DEBUG)  
+app.logger.setLevel(logging.DEBUG)  
 
-# Instancia o Controller e o modelo de áudio
 controller = Controller()
 
-# Configurações do banco de dados
 db_config = {
     'host': '89.116.74.250',
-    'port': 3307,  # Altere para sua porta
+    'port': 3307,  
     'user': 'dbaudio',
     'password': 'dbaudio',
     'database': 'dbaudio'
 }
 
-# Cria o modelo de áudio e conecta ao banco de dados
 audio_model = AudioModel(**db_config)
 audio_model.connect()
 
-@app.route('/avaliar_sono', methods=['POST'])
 @app.route('/avaliar_sono', methods=['POST'])
 def avaliar_sono():
     try:
@@ -56,20 +49,24 @@ def avaliar_sono():
         # Ler os dados binários diretamente do arquivo
         audio_data = audio_file.read()  # Lê o conteúdo binário do arquivo de áudio
 
-        # Armazenar o áudio no banco de dados como binário
-        audio_model.insert_audio(audio_filename, audio_data)
-
         if controller.model is None:
             return jsonify({"error": "Modelo não carregado. Necessário treinar o modelo primeiro."}), 400
         
         # Chamando a função de avaliação e armazenando o resultado
         resultado = controller.avaliar_noite(file_path)
 
+        # Verificando se o retorno contém uma chave "message" e "percent_ronco"
+        if "message" in resultado and "percent_ronco" in resultado:
+            # Agora que temos o resultado da avaliação, salvar o áudio com o resultado
+            audio_model.insert_audio(None, audio_filename, audio_data, resultado["message"], resultado["percent_ronco"])
+        else:
+            app.logger.error("Erro no resultado da avaliação: " + str(resultado))
+            return jsonify({"error": "Erro ao avaliar o áudio."}), 500
+
         # Excluir o arquivo após o processamento
         os.remove(file_path)
         app.logger.info(f"Arquivo {file_path} excluído após o processamento.")
 
-        print(jsonify(resultado))
         return jsonify(resultado), 200  # Retorna o resultado como JSON
 
     except Exception as e:
@@ -80,15 +77,15 @@ def avaliar_sono():
 @app.route('/listar_audios', methods=['GET'])
 def listar_audios():
     try:
-        # Recuperar todos os áudios do banco de dados
         audios = audio_model.get_all_audios()
 
-        # Preparar uma lista com os dados dos áudios para exibição
         audio_list = []
         for audio in audios:
             audio_list.append({
                 'id': audio[0],
-                'name': audio[1]
+                'name': audio[1],
+                'resultado': audio[2],
+                'percent_ronco': audio[3]
             })
 
         return jsonify(audio_list), 200
@@ -102,6 +99,7 @@ def listar_audios():
 def home():
     app.logger.info("Rota /teste acessada")
     return jsonify({"message": "Avaliação concluída com sucesso!"}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=5179)
