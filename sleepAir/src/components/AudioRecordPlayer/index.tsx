@@ -21,7 +21,7 @@ import axios from 'axios'; // Adiciona axios para envio ao servidor
 
 const audioRecorderPlayer = new AudioRecorderPlayer();
 
-const AudioRecorder = ({ navigation }: any)  => {
+const AudioRecorder = ({ navigation }: any) => {
     const [selectedDirectory, setSelectedDirectory] = useState<string | null>(null);
     const [recording, setRecording] = useState<boolean>(false);
     const [audioPath, setAudioPath] = useState<string>('');
@@ -117,7 +117,7 @@ const AudioRecorder = ({ navigation }: any)  => {
 
     const generateAudioFileName = (): string => {
         const timestamp = new Date().getTime();
-        return `${selectedDirectory}/gravação_${timestamp}.mp3`;
+        return `${selectedDirectory}/gravacao_${timestamp}.mp3`;
     };
 
     const startRecording = async () => {
@@ -207,22 +207,30 @@ const AudioRecorder = ({ navigation }: any)  => {
 
     // Envia o arquivo de áudio para o servidor
     const sendAudioToServer = async (audioFilePath: string) => {
+        console.log('Enviando áudio para o servidor:', audioFilePath);
+
+        const fileName = audioFilePath.split('/').pop();
         const formData = new FormData();
         formData.append('audio', {
-            uri: audioFilePath,
+            uri: 'file://' + audioFilePath,
             type: 'audio/mp3',
-            name: 'audio.mp3',
+            name: fileName,
         });
+        console.log('Enviando FormData para o servidor:', formData);
+
         try {
-            const response = await axios.post('http://89.116.74.250:8013/avaliar_sono', formData, {
+            const response = await axios.post('http://192.168.1.185:5179/avaliar_sono', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log('Resposta do servidor:', response);
+            console.log('Resposta do servidor:', response.data);
         } catch (error) {
+            console.error('Erro ao enviar áudio:', error);
+            Alert.alert('Erro', 'Não foi possível enviar o áudio.');
         }
     };
+
 
     const handleEvaluateSleep = async () => {
         if (!selectedAudio) {
@@ -231,7 +239,7 @@ const AudioRecorder = ({ navigation }: any)  => {
         }
         try {
             await sendAudioToServer(selectedAudio);
-            // navigation.navigate('Relatório');
+            navigation.navigate('Relatório');
         } catch (error) {
             console.error('Erro ao avaliar o sono:', error);
             Alert.alert('Erro', 'Não foi possível avaliar o sono.');
@@ -335,7 +343,7 @@ const AudioRecorder = ({ navigation }: any)  => {
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={modalStyles.modalButton}
-                            onPress={handleEvaluateSleep} // Adiciona a funcionalidade de avaliar o sono
+                            onPress={handleEvaluateSleep}
                         >
                             <Text style={modalStyles.modalButtonText}>Avaliar Sono</Text>
                         </TouchableOpacity>

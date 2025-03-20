@@ -4,13 +4,13 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgb(3, 7, 68)',
   },
   title: {
     fontSize: 50,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: 'rgb(5, 71, 252)',
+    color: 'rgb(255, 255, 255)',
   },
   button: {
     padding: 12,
@@ -50,6 +50,7 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginTop: 20,
+    color: '#999', 
   },
   noAudioText: {
     textAlign: 'center',
