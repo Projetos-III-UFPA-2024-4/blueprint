@@ -75,6 +75,13 @@ class AudioModel:
             return result
         return None
 
+    def get_latest_audio(self):
+            """Recupera o áudio mais recente do banco de dados."""
+            select_query = "SELECT id, name, resultado, percent_ronco FROM audios ORDER BY id DESC LIMIT 1"
+            self.cursor.execute(select_query)
+            result = self.cursor.fetchone()
+            return result
+    
     def close_connection(self):
         """Fecha a conexão com o banco de dados."""
         if self.connection.is_connected():

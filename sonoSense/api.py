@@ -1,16 +1,21 @@
 import os
 import logging
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # type: ignore
+from flask_cors import CORS
 from controllers.controller import Controller
 from models.audio_model import AudioModel
+from pydub import AudioSegment
+from pydub.utils import which
+
+# Garantir que o pydub use o ffmpeg corretamente
+AudioSegment.ffmpeg = which("ffmpeg")
 
 app = Flask(__name__)
 
 CORS(app)
 
-logging.basicConfig(level=logging.DEBUG)  
-app.logger.setLevel(logging.DEBUG)  
+logging.basicConfig(level=logging.DEBUG)
+app.logger.setLevel(logging.DEBUG)
 
 controller = Controller()
 
@@ -24,6 +29,18 @@ db_config = {
 
 audio_model = AudioModel(**db_config)
 audio_model.connect()
+
+
+def converter_audio_para_wav(input_path, output_path):
+    try:
+        # Verificar o tipo de formato antes de converter
+        audio = AudioSegment.from_file(input_path)
+        audio.export(output_path, format="wav")
+        return output_path
+    except Exception as e:
+        app.logger.error(f"Erro ao converter áudio para WAV: {e}")
+        return None
+
 
 @app.route('/avaliar_sono', methods=['POST'])
 def avaliar_sono():
@@ -46,28 +63,28 @@ def avaliar_sono():
         audio_file.save(file_path)
         app.logger.info(f"Arquivo de áudio salvo temporariamente em {file_path}")
 
-        # Ler os dados binários diretamente do arquivo
-        audio_data = audio_file.read()  # Lê o conteúdo binário do arquivo de áudio
+        # Converter áudio para WAV (funciona com MP3, AAC, etc.)
+        wav_path = file_path.replace(os.path.splitext(file_path)[1], ".wav")
+        wav_file = converter_audio_para_wav(file_path, wav_path)
 
-        if controller.model is None:
-            return jsonify({"error": "Modelo não carregado. Necessário treinar o modelo primeiro."}), 400
-        
-        # Chamando a função de avaliação e armazenando o resultado
-        resultado = controller.avaliar_noite(file_path)
+        if wav_file:
+            # Agora use o arquivo WAV para o processamento
+            resultado = controller.avaliar_noite(wav_file)
 
-        # Verificando se o retorno contém uma chave "message" e "percent_ronco"
-        if "message" in resultado and "percent_ronco" in resultado:
-            # Agora que temos o resultado da avaliação, salvar o áudio com o resultado
-            audio_model.insert_audio(None, audio_filename, audio_data, resultado["message"], resultado["percent_ronco"])
-        else:
-            app.logger.error("Erro no resultado da avaliação: " + str(resultado))
-            return jsonify({"error": "Erro ao avaliar o áudio."}), 500
+            # Se o processamento for bem-sucedido, insira os dados no banco de dados
+            if "message" in resultado and "percent_ronco" in resultado:
+                audio_model.insert_audio(None, audio_filename, audio_file.read(), resultado["message"], resultado["percent_ronco"])
+            else:
+                app.logger.error(f"Erro no resultado da avaliação: {str(resultado)}")
+                return jsonify({"error": "Erro ao avaliar o áudio."}), 500
 
-        # Excluir o arquivo após o processamento
-        os.remove(file_path)
-        app.logger.info(f"Arquivo {file_path} excluído após o processamento.")
+            os.remove(file_path)  # Remover o arquivo temporário
+            os.remove(wav_path)  # Remover o arquivo WAV convertido
+            app.logger.info(f"Arquivo {file_path} e {wav_path} excluídos após o processamento.")
 
-        return jsonify(resultado), 200  # Retorna o resultado como JSON
+            return jsonify(resultado), 200
+
+        return jsonify({"error": "Falha na conversão do arquivo para WAV."}), 500
 
     except Exception as e:
         app.logger.error(f"Erro durante o processamento do áudio: {str(e)}")
@@ -92,6 +109,29 @@ def listar_audios():
 
     except Exception as e:
         app.logger.error(f"Erro ao listar os áudios: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/listar_audio_recente', methods=['GET'])
+def listar_audio_recente():
+    try:
+        # Recuperar o áudio mais recente do banco de dados
+        audio = audio_model.get_latest_audio()
+
+        if not audio:
+            return jsonify({"message": "Nenhum áudio encontrado."}), 404
+
+        # Preparar o dado do áudio para exibição
+        audio_data = {
+            'id': audio[0],
+            'name': audio[1],
+            'resultado': audio[2],
+            'percent_ronco': audio[3]
+        }
+
+        return jsonify(audio_data), 200
+
+    except Exception as e:
+        app.logger.error(f"Erro ao listar o áudio: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 

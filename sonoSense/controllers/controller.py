@@ -69,6 +69,7 @@ class Controller:
 
 
     def avaliar_noite(self, audio_path, segment_duration=1.0, threshold=20):
+
         """
         Processa uma gravação noturna completa e classifica cada segmento.
         Retorna um dicionário com os resultados da avaliação.
@@ -124,3 +125,5 @@ class Controller:
                 "message": "Sono possivelmente saudável.",
                 "percent_ronco": percent_ronco
             }
+
+
